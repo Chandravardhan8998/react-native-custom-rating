@@ -1,20 +1,20 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { Image, ImageRequireSource, ImageURISource, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import React, { Fragment, useEffect, useMemo, useState } from 'react';
+import { Image as Img, ImageRequireSource as imgRS, ImageURISource as imgType, StyleSheet as SS, TouchableOpacity as Press, View, ViewStyle } from 'react-native';
 
 
 type HalfStarProps = {
-    originalRating: number,
-    ratingToInt: number,
+    ratStr: number,
+    ratInt: number,
     size?: number,
-    halfStarIcon: ImageRequireSource | ImageURISource,
+    halfStarIcon: imgRS | imgType,
 }
 
-const HalfStar = ({ originalRating, ratingToInt, size = 10, halfStarIcon }: HalfStarProps) => {
-    const halfRate = originalRating - ratingToInt;
+const HalfStar = ({ ratStr, ratInt, size = 10, halfStarIcon }: HalfStarProps) => {
+    const halfRate = ratStr - ratInt;
     if (halfRate < 1 && halfRate > 0) {
         const imageStyle = useMemo(() => ratingImageSizeStyle(size), [size])
         return (
-            <Image
+            <Img
                 style={imageStyle}
                 source={halfStarIcon}
             />
@@ -23,8 +23,8 @@ const HalfStar = ({ originalRating, ratingToInt, size = 10, halfStarIcon }: Half
         return null;
     }
 };
-const isHalf = (originalRating: number, ratingToInt: number): boolean => {
-    const halfRate = originalRating - ratingToInt;
+const isHalf = (ratStr: number, ratInt: number): boolean => {
+    const halfRate = ratStr - ratInt;
     return halfRate < 1 && halfRate > 0;
 };
 
@@ -56,28 +56,28 @@ interface RatingProps {
     /**
      * `renderHalfStarIcon`  render custom half star element 
      **/
-    renderHalfStarIcon?: () => React.ReactNode,
+    renderHalfStarIcon?: (number: number) => React.ReactNode,
     /**
     * `renderEmptyStarIcon`  render custom empty star element 
     **/
-    renderEmptyStarIcon?: () => React.ReactNode,
+    renderEmptyStarIcon?: (number: number) => React.ReactNode,
 
     /**
     * `renderFilledStarIcon`  render custom filled star element 
     **/
-    renderFilledStarIcon?: () => React.ReactNode,
+    renderFilledStarIcon?: (number: number) => React.ReactNode,
     /**
      * `halfStarIcon`  pass `image`|`uri` for half star icon
      **/
-    halfStarIcon?: ImageRequireSource | ImageURISource,
+    halfStarIcon?: imgRS | imgType,
     /**
     * `emptyStarIcon`  pass `image`|`uri` for empty star icon
     **/
-    emptyStarIcon?: ImageRequireSource | ImageURISource,
+    emptyStarIcon?: imgRS | imgType,
     /**
     * `filledStarIcon`  pass `image`|`uri` for filled star icon
     **/
-    filledStarIcon?: ImageRequireSource | ImageURISource,
+    filledStarIcon?: imgRS | imgType,
     /**
     * `containerStyle`  pass style for container
      **/
@@ -114,7 +114,7 @@ const Ratings = ({
     emptyStarIcon,
     filledStarIcon,
     halfStarIcon,
-    readonly = false,
+    readonly = true,
     renderEmptyStarIcon,
     renderFilledStarIcon,
     renderHalfStarIcon,
@@ -128,7 +128,7 @@ const Ratings = ({
         setRating(rating)
     }, [rating])
 
-    const originalRating = useMemo(() => {
+    const ratStr = useMemo(() => {
         if (Rating < 1) {
             return 1
         } else {
@@ -136,20 +136,20 @@ const Ratings = ({
         }
     }, [maxRating, Rating])
 
-    const ratingToInt = parseInt(originalRating.toString());
+    const ratInt = parseInt(ratStr.toString());
 
-    const Extra = useMemo(() => {
-        let Extra = +Number(maxRating - originalRating).toFixed();
-        if (originalRating < 1) {
-            Extra = 5;
-        } else if (isHalf(originalRating, ratingToInt)) {
-            Extra = Extra - 1;
+    const empty = useMemo(() => {
+        let empty = +Number(maxRating - ratStr).toFixed();
+        if (ratStr < 1) {
+            empty = 5;
+        } else if (isHalf(ratStr, ratInt)) {
+            empty = empty - 1;
         }
-        return Extra
-    }, [maxRating, originalRating])
+        return empty
+    }, [maxRating, ratStr, ratInt])
     const imageStyle = useMemo(() => ratingImageSizeStyle(size), [size])
 
-    const onRatingPressHandler = (rating: number) => {
+    const onRatingHandler = (rating: number) => {
         return () => {
             setRating(rating)
             return onFinishRating(rating)
@@ -166,60 +166,62 @@ const Ratings = ({
     }
     return (
         <View
-            style={[styles.container, containerStyle]}>
-            {[...new Array(+ratingToInt)].map((rating, index) => {
+            style={[s.c, containerStyle]}>
+            {[...new Array(+ratInt)].map((rating, index) => {
                 if (!!renderFilledStarIcon) {
-                    return renderFilledStarIcon();
+                    return <Fragment key={index} >{renderFilledStarIcon(index + 1)}</Fragment>;
                 } else if (!!filledStarIcon) {
                     return (
-                        <TouchableOpacity
+                        <Press
                             disabled={readonly}
-                            onPress={onRatingPressHandler(index + 1)}
+                            onPress={onRatingHandler(index + 1)}
                             key={`${rating}_${index}`}
                             style={elementStyling}
                         >
-                            <Image
+                            <Img
                                 style={imageStyle}
                                 source={filledStarIcon} />
-                        </TouchableOpacity>
+                        </Press>
                     );
-                } else {
-                    return <></>;
                 }
+                return null
             })}
-
-            {!!renderHalfStarIcon ? renderHalfStarIcon() : isHalf(originalRating, ratingToInt) && !!halfStarIcon && <TouchableOpacity
+            {isHalf(ratStr, ratInt) && (!!renderHalfStarIcon ? renderHalfStarIcon(ratInt + 1) : !!halfStarIcon && <Press
                 disabled={readonly}
-                onPress={onRatingPressHandler(ratingToInt + 1)}
+                onPress={onRatingHandler(ratInt + 1)}
                 style={elementStyling}
             >
                 <HalfStar
-                    originalRating={originalRating}
-                    ratingToInt={ratingToInt}
+                    ratStr={ratStr}
+                    ratInt={ratInt}
                     size={size}
                     halfStarIcon={halfStarIcon}
                 />
-            </TouchableOpacity>
+            </Press>)
             }
-            {!!Extra &&
-                [...new Array(Extra)].map((res, i) => {
+
+            {!!empty &&
+                [...new Array(empty)].map((res, i) => {
+                    const extraValue = isHalf(ratStr, ratInt) ? ratInt + i + 2 : ratInt + i + 1;
                     if (!!renderEmptyStarIcon) {
-                        return renderEmptyStarIcon();
+                        return <Fragment
+                            key={i}
+                        >{renderEmptyStarIcon(extraValue)}</Fragment>
                     } else if (!!emptyStarIcon) {
                         return (
-                            <TouchableOpacity
+                            <Press
                                 style={elementStyling}
                                 disabled={readonly}
-                                onPress={onRatingPressHandler(ratingToInt + i + 1)}
+                                onPress={onRatingHandler(extraValue)}
                                 key={`${res}_${i}`}
-                            ><Image
+                            >
+                                <Img
                                     style={imageStyle}
                                     source={emptyStarIcon} />
-                            </TouchableOpacity>
+                            </Press>
                         );
-                    } else {
-                        return <></>;
                     }
+                    return null
                 })
             }
         </View>
@@ -229,18 +231,15 @@ const Ratings = ({
 export default Ratings;
 
 
-
-
 function ratingImageSizeStyle(size: number) {
     return {
         height: size,
         width: size,
-        // backgroundColor: "#ff0"
     };
 }
 
-const styles = StyleSheet.create({
-    container: {
+const s = SS.create({
+    c: {
         justifyContent: 'center',
         alignItems: 'center',
         flexDirection: 'row',
