@@ -1,0 +1,23 @@
+{
+  "name": "react-native-custom-rating-example",
+  "displayName": "CustomRating Example",
+  "expo": {
+    "name": "react-native-custom-rating-example",
+    "slug": "react-native-custom-rating-example",
+    "description": "Example app for react-native-custom-rating",
+    "privacy": "public",
+    "version": "1.0.0",
+    "platforms": [
+      "ios",
+      "android",
+      "web"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "jsEngine": "hermes",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
