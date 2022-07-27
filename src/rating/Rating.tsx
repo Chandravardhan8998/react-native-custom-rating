@@ -59,15 +59,18 @@ interface RatingProps {
     renderHalfStarIcon?: (number: number) => React.ReactNode,
     /**
     * `renderEmptyStarIcon`  render custom empty star element 
+    * @return current rating number
     **/
     renderEmptyStarIcon?: (number: number) => React.ReactNode,
 
     /**
     * `renderFilledStarIcon`  render custom filled star element 
+    * @return current rating number
     **/
     renderFilledStarIcon?: (number: number) => React.ReactNode,
     /**
      * `halfStarIcon`  pass `image`|`uri` for half star icon
+     * @return current rating number
      **/
     halfStarIcon?: imgRS | imgType,
     /**
