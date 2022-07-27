@@ -10,7 +10,7 @@ npm install react-native-custom-rating
 
 ### [examples/src](https://github.com/Chandravardhan8998/react-native-custom-rating/blob/master/example/src)
 
-![](https://i.imgur.com/05fzzAy.gifv)
+![](https://i.imgur.com/05fzzAy.gif)
 
 ## Usage
 
